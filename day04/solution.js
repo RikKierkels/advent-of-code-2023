@@ -18,7 +18,7 @@ const cards = input(__dirname, './input.txt')
 const totalAmountOfPoints = cards
   .filter(({ winning }) => winning.length)
   .map(({ winning }) => 2 ** (winning.length - 1))
-  .reduce((total, score) => (total += score), 0);
+  .reduce((total, score) => total + score, 0);
 
 const totalAmountOfScratchCards = cards
   .map((card) => card.winning.length)
@@ -32,7 +32,7 @@ const totalAmountOfScratchCards = cards
     },
     cards.map(() => 1),
   )
-  .reduce((total, num) => total + num);
+  .reduce((total, numberOfCards) => total + numberOfCards);
 
 log(`Solution pt.1 ${totalAmountOfPoints}`);
 log(`Solution pt.2 ${totalAmountOfScratchCards}`);
