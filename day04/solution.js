@@ -5,6 +5,7 @@ const range = (start, length) => [...Array(length)].map((_, i) => start + i);
 const intersect = (xs, ...ys) =>
   [...new Set(xs)].filter((x) => ys.every((y) => y.includes(x)));
 const toNumberArray = (s) => s.split(' ').map(Number);
+const sum = (a, b) => a + b;
 
 const cards = input(__dirname, './input.txt')
   .replaceAll(/\s{2,}/g, ' ')
@@ -18,7 +19,7 @@ const cards = input(__dirname, './input.txt')
 const totalAmountOfPoints = cards
   .filter(({ winning }) => winning.length)
   .map(({ winning }) => 2 ** (winning.length - 1))
-  .reduce((total, score) => total + score, 0);
+  .reduce(sum);
 
 const totalAmountOfScratchCards = cards
   .map((card) => card.winning.length)
@@ -32,7 +33,7 @@ const totalAmountOfScratchCards = cards
     },
     cards.map(() => 1),
   )
-  .reduce((total, numberOfCards) => total + numberOfCards);
+  .reduce(sum);
 
 log(`Solution pt.1 ${totalAmountOfPoints}`);
 log(`Solution pt.2 ${totalAmountOfScratchCards}`);
