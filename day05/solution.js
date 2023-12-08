@@ -15,16 +15,10 @@ const min = (a, b) => Math.min(a, b);
 const seedsRegex = /seeds: ([\s\d]+)\nseed-to-soil map:\n([\s\d]+)\nsoil-to-fertilizer map:\n([\s\d]+)\nfertilizer-to-water map:\n([\s\d]+)\nwater-to-light map:\n([\s\d]+)\nlight-to-temperature map:\n([\s\d]+)\ntemperature-to-humidity map:\n([\s\d]+)\nhumidity-to-location map:\n([\s\d]+)/;
 
 const ConversionMap = (map) => {
-  const lines = map.map((line) => {
-    const destination = +line[0];
-    const source = +line[1];
-    const length = +line[2];
-
-    return {
-      hasSource: (n) => n >= source && n < source + length,
-      getDestination: (n) => n - source + destination,
-    };
-  });
+  const lines = map.map(([destination, source, length]) => ({
+    hasSource: (n) => n >= source && n < source + length,
+    getDestination: (n) => n - source + destination,
+  }));
 
   return {
     getDestination: (n) =>
@@ -37,7 +31,9 @@ const [seeds, ...maps] = match(seedsRegex)(input(__dirname, './input.txt'))
   .map((lines) =>
     lines.length === 1
       ? lines.flatMap(splitOnWhiteSpace).map((n) => +n)
-      : ConversionMap(lines.map(splitOnWhiteSpace)),
+      : ConversionMap(
+          lines.map(splitOnWhiteSpace).map((line) => line.map((n) => +n)),
+        ),
   );
 
 const minLocationPartOne = seeds
