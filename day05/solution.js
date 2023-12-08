@@ -12,7 +12,7 @@ const split = (c) => (s) => s.split(c);
 const splitOnWhiteSpace = split(' ');
 const splitOnNewLine = split('\n');
 const min = (a, b) => Math.min(a, b);
-const seedsRegex = /seeds: ([\s\d]+)\nseed-to-soil map:\n([\s\d]+)\nsoil-to-fertilizer map:\n([\s\d]+)\nfertilizer-to-water map:\n([\s\d]+)\nwater-to-light map:\n([\s\d]+)\nlight-to-temperature map:\n([\s\d]+)\ntemperature-to-humidity map:\n([\s\d]+)\nhumidity-to-location map:\n([\s\d]+)/;
+const almanacRegex = /seeds: ([\s\d]+)\nseed-to-soil map:\n([\s\d]+)\nsoil-to-fertilizer map:\n([\s\d]+)\nfertilizer-to-water map:\n([\s\d]+)\nwater-to-light map:\n([\s\d]+)\nlight-to-temperature map:\n([\s\d]+)\ntemperature-to-humidity map:\n([\s\d]+)\nhumidity-to-location map:\n([\s\d]+)/;
 
 const ConversionMap = (map) => {
   const lines = map.map(([destination, source, length]) => ({
@@ -26,13 +26,14 @@ const ConversionMap = (map) => {
   };
 };
 
-const [seeds, ...maps] = match(seedsRegex)(input(__dirname, './input.txt'))
+const almanac = input(__dirname, './input.txt');
+const [seeds, ...maps] = match(almanacRegex)(almanac)
   .map((match) => splitOnNewLine(match.replace(/\n$/, '')))
-  .map((lines) =>
-    lines.length === 1
-      ? lines.flatMap(splitOnWhiteSpace).map((n) => +n)
+  .map((seedsOrMap) =>
+    seedsOrMap.length === 1
+      ? seedsOrMap.flatMap(splitOnWhiteSpace).map((n) => +n)
       : ConversionMap(
-          lines.map(splitOnWhiteSpace).map((line) => line.map((n) => +n)),
+          seedsOrMap.map(splitOnWhiteSpace).map((line) => line.map((n) => +n)),
         ),
   );
 
