@@ -1,6 +1,5 @@
 const input = require('../input');
 const log = console.log;
-const insert = (array, index, value) => array.splice(index, 0, value);
 const arrayFrom = (length) => Array.from({ length }).map((_, i) => i);
 const pairs = (array) =>
   array.flatMap((x, i) => array.slice(i + 1).map((y) => [x, y]));
@@ -25,24 +24,6 @@ const findEmptySpace = (universe) => {
   return [emptyRowIndexes, emptyColumnIndexes];
 };
 
-const expand = (universe) => {
-  const [emptyRowIndexes, emptyColumnIndexes] = findEmptySpace(universe);
-
-  emptyRowIndexes.forEach((indexOfRow, offset) =>
-    insert(
-      universe,
-      indexOfRow + offset,
-      arrayFrom(universe[0].length).map((_) => '.'),
-    ),
-  );
-
-  emptyColumnIndexes.forEach((indexOfColumn, offset) =>
-    universe.forEach((row) => insert(row, indexOfColumn + offset, '.')),
-  );
-
-  return universe;
-};
-
 const findGalaxies = (universe) => {
   const lengthOfRow = universe[0].length;
 
@@ -54,18 +35,50 @@ const findGalaxies = (universe) => {
   ].map(({ index }) => [index % lengthOfRow, Math.floor(index / lengthOfRow)]);
 };
 
-const path = ([x1, y1], [x2, y2]) => Math.abs(x1 - x2) + Math.abs(y1 - y2);
+const findShortestExpandedPath = (
+  [[x1, y1], [x2, y2]],
+  emptyRowIndexes,
+  emptyColumnIndexes,
+  expansion = 1,
+) => {
+  let distance = Math.abs(x1 - x2) + Math.abs(y1 - y2);
 
-const universe = expand(
-  input(__dirname, './input.txt')
-    .split('\n')
-    .map((row) => row.split('')),
-);
-const galaxies = findGalaxies(universe);
-const steps = pairs(galaxies).reduce(
-  (steps, pair) => (steps += path(pair[0], pair[1])),
-  0,
-);
+  distance += emptyRowIndexes.reduce(
+    (dist, index) =>
+      (dist +=
+        Math.min(y1, y2) < index && Math.max(y1, y2) > index ? expansion : 0),
+    0,
+  );
 
-log(`Solution pt.1 ${steps}`);
-log(`Solution pt.2 ${2}`);
+  distance += emptyColumnIndexes.reduce(
+    (dist, index) =>
+      (dist +=
+        Math.min(x1, x2) < index && Math.max(x1, x2) > index ? expansion : 0),
+    0,
+  );
+
+  return distance;
+};
+
+const findSumOfShortestExpandedPaths = (universe, expansion = 1) => {
+  const galaxies = findGalaxies(universe);
+  const [emptyRowIndexes, emptyColumnIndexes] = findEmptySpace(universe);
+
+  return pairs(galaxies).reduce(
+    (steps, pair) =>
+      (steps += findShortestExpandedPath(
+        pair,
+        emptyRowIndexes,
+        emptyColumnIndexes,
+        expansion,
+      )),
+    0,
+  );
+};
+
+const universe = input(__dirname, './input.txt')
+  .split('\n')
+  .map((row) => row.split(''));
+
+log(`Solution pt.1 ${findSumOfShortestExpandedPaths(universe)}`);
+log(`Solution pt.2 ${findSumOfShortestExpandedPaths(universe, 1_000_000 - 1)}`);
