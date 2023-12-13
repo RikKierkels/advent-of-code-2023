@@ -1,27 +1,19 @@
 const input = require('../input');
 const log = console.log;
-const arrayFrom = (length) => Array.from({ length }).map((_, i) => i);
 const pairs = (array) =>
   array.flatMap((x, i) => array.slice(i + 1).map((y) => [x, y]));
+const transpose = (array) =>
+  array[0].map((_, col) => array.map((row) => row[col]));
 
-const findEmptySpace = (universe) => {
-  const isEmptySpace = (n) => n === '.';
-
-  const emptyRowIndexes = universe.reduce(
+const isEmptySpace = (n) => n === '.';
+const toEmptyIndexes = (universe) =>
+  universe.reduce(
     (indexes, row, index) =>
       row.every(isEmptySpace) ? [...indexes, index] : indexes,
     [],
   );
-
-  const emptyColumnIndexes = arrayFrom(universe[0].length).reduce(
-    (indexes, index) =>
-      universe.map((row) => row[index]).every(isEmptySpace)
-        ? [...indexes, index]
-        : indexes,
-    [],
-  );
-
-  return [emptyRowIndexes, emptyColumnIndexes];
+const findEmptySpace = (universe) => {
+  return [toEmptyIndexes(universe), toEmptyIndexes(transpose(universe))];
 };
 
 const findGalaxies = (universe) => {
